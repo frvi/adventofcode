@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require('fs/promises');
+const fs = require('fs').promises;
 
 const getInput = async (filename) => {
     const input = await fs.readFile(filename, 'utf8');
