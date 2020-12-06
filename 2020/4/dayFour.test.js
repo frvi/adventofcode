@@ -74,7 +74,20 @@ describe('day four', () => {
         // then
         expect(invalid.length).to.equal(0)
         expect(valid.length).to.equal(4)
+    });
 
+    it('should solve part two', async () => {
+        // given
+        const filename = './4/input.txt';
+        const input = await dayFour.getInput(filename);
+        const passports = dayFour.getPassportsWithNeededData(input);
+
+        // when
+        const validPassports = dayFour.validate(passports);
+        const result = validPassports.length
+
+        // then
+        expect(result).to.equal(133);
     });
 
 })
