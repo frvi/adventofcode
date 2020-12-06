@@ -40,10 +40,41 @@ describe('day four', () => {
         const input = await dayFour.getInput(filename);
 
         // when
-        const result = dayFour.getNumberOfValidPassports(input);
+        const result = dayFour.getPassportsWithNeededData(input).length;
 
         // then
         expect(result).to.equal(2);
+    });
+
+    it('should solve part one', async () => {
+        // given
+        const filename = './4/input.txt';
+        const input = await dayFour.getInput(filename);
+
+        // when
+        const result = dayFour.getPassportsWithNeededData(input).length;
+
+        // then
+        expect(result).to.equal(245);
+    });
+
+    it('should pass part two test data', async () => {
+        // given
+        const filenameInvalid = './4/testdata_invalid.txt';
+        const inputInvalid = await dayFour.getInput(filenameInvalid);
+        const passportsInvalid = dayFour.getPassportsWithNeededData(inputInvalid);
+        const filenameValid = './4/testdata_valid.txt';
+        const inputValid = await dayFour.getInput(filenameValid);
+        const passportsValid = dayFour.getPassportsWithNeededData(inputValid);
+
+        // when
+        const invalid = dayFour.validate(passportsInvalid);
+        const valid = dayFour.validate(passportsValid);
+
+        // then
+        expect(invalid.length).to.equal(0)
+        expect(valid.length).to.equal(4)
+
     });
 
 })
