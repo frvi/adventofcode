@@ -1,4 +1,4 @@
-package com.githib.frvi.aoc.twentytwentyone.three;
+package com.githib.frvi.aoc.twentytwentyone.day03;
 
 import com.githib.frvi.aoc.twentytwentyone.helper.Comparor;
 import com.githib.frvi.aoc.twentytwentyone.helper.Helper;
@@ -11,8 +11,8 @@ import java.util.List;
 import static com.githib.frvi.aoc.twentytwentyone.helper.Helper.bitsToDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DayThreeTest {
-    public static final String INPUT = "src/test/resources/three/input";
+public class Day03Test {
+    public static final String INPUT = "src/test/resources/input.03";
 
     @Test
     public void partOne() throws IOException {

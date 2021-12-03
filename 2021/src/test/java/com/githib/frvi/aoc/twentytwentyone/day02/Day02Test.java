@@ -1,4 +1,4 @@
-package com.githib.frvi.aoc.twentytwentyone.two;
+package com.githib.frvi.aoc.twentytwentyone.day02;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,12 +7,12 @@ import java.io.IOException;
 import static com.githib.frvi.aoc.twentytwentyone.helper.Helper.readAllLines;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DayTwoTest {
+public class Day02Test {
 
-    public static final String INPUT = "src/test/resources/two/input";
+    public static final String INPUT = "src/test/resources/input.02";
 
     @Test
-    public void part_one() throws IOException {
+    public void partOne() throws IOException {
         final var lines = readAllLines(INPUT);
 
         int forward = 0;
@@ -40,7 +40,7 @@ public class DayTwoTest {
     }
 
     @Test
-    public void part_two() throws IOException {
+    public void partTwo() throws IOException {
         // given
         final var lines = readAllLines(INPUT);
         final var expected = 1749524700;

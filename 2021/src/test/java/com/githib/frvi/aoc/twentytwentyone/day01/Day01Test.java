@@ -1,4 +1,4 @@
-package com.githib.frvi.aoc.twentytwentyone.one;
+package com.githib.frvi.aoc.twentytwentyone.day01;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,9 +12,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-class DayOneTest {
+class Day01Test {
 
-    public static final String INPUT = "src/test/resources/one/input";
+    public static final String INPUT = "src/test/resources/input.01";
 
     @Test
     void should_ReadAllLinesFromFile() throws IOException {
@@ -33,7 +33,7 @@ class DayOneTest {
     }
 
     @Test
-    void should_IterateAndCompareWithPreviousLine() throws IOException {
+    void partOne() throws IOException {
         // given
         final var allLines = readAllLines(INPUT);
         final var expected = 1832;
@@ -46,7 +46,7 @@ class DayOneTest {
     }
 
     @Test
-    void should_IterateAndCompareWithThreeLines() throws IOException {
+    void partTwo() throws IOException {
         // Given
         final var allLines = readAllLines(INPUT);
         final var expected = 1858;
