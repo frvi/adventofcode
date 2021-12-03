@@ -12,4 +12,9 @@ public class Helper {
 
         return Files.readAllLines(path);
     }
+
+    public static int bitsToDecimal(String bits) {
+        return Integer.parseInt(bits, 2);
+    }
+
 }
