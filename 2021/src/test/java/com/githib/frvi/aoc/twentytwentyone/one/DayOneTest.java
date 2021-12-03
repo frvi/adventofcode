@@ -12,7 +12,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-class TestDayOne {
+class DayOneTest {
 
     public static final String INPUT = "src/test/resources/one/input";
 
