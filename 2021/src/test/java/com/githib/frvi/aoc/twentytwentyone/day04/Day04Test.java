@@ -21,110 +21,77 @@ public class Day04Test {
     @Test
     public void sample() throws IOException {
         // given
-        final var sampleLines = Helper.readAllLines(SAMPLE);
         final var expected = 4512;
+        final var sampleLines = Helper.readAllLines(SAMPLE);
         final var numbers = getNumbers(sampleLines);
         final List<Brick> bricks = createBricks(sampleLines);
-        List<Brick> winners = List.of();
-        int winningNumber = 0;
 
         // when
-        for (var number :
-                numbers) {
-            bricks.forEach(brick -> brick.mark(number));
-
-            winners = bricks.stream()
-                    .filter(Brick::bingo)
-                    .toList();
-
-            if (winners.size() == 1) {
-                winningNumber = number;
-                break;
-            }
-        }
+        final Brick brick = getFirstBingo(numbers, bricks);
 
         // then
-        assertEquals(3, bricks.size());
-        assertEquals(1, winners.size());
-
-        final var unmarkedSum = winners.get(0).uncheckedSum();
-
-        assertEquals(expected, unmarkedSum * winningNumber);
+        assertEquals(expected, brick.uncheckedSum() * brick.latestNumber);
     }
 
     @Test
     public void testOne() throws IOException {
         // given
-        final var sampleLines = Helper.readAllLines(INPUT);
         final int expectedSum = 29440;
-        final int expectedWinners = 1;
-
+        final var sampleLines = Helper.readAllLines(INPUT);
         final var numbers = getNumbers(sampleLines);
         final List<Brick> bricks = createBricks(sampleLines);
 
-        List<Brick> winners = new ArrayList<>();
-        int winningNumber = 0;
-
         // when
-        for (var number : numbers) {
-            winners = bricks.stream()
-                    .peek(brick -> brick.mark(number))
-                    .filter(Brick::bingo)
-                    .toList();
-
-            if (!winners.isEmpty()) {
-                winningNumber = number;
-                break;
-            }
-        }
+        final var brick = getFirstBingo(numbers, bricks);
 
         // then
-        assertEquals(expectedWinners, winners.size());
-
-        final var unmarkedSum = winners.get(0).uncheckedSum();
-
-        assertEquals(expectedSum, unmarkedSum * winningNumber);
+        assertEquals(expectedSum, brick.uncheckedSum() * brick.latestNumber);
     }
 
     @Test
     public void testTwo() throws IOException {
         // given
-        final var sampleLines = Helper.readAllLines(INPUT);
         final var expected = 13884;
-        List<Brick> winners = new ArrayList<>();
-        int totalWinners = 0;
-        int winningNumber = 0;
+        final var sampleLines = Helper.readAllLines(INPUT);
         final var numbers = getNumbers(sampleLines);
         List<Brick> bricks = createBricks(sampleLines);
-        final int totalBricks = bricks.size();
 
         // when
+        Brick brick = getLastBingo(numbers, bricks);
+
+        // then
+        final int actual = brick.uncheckedSum() * brick.latestNumber;
+        assertEquals(expected, actual);
+    }
+
+    private List<Brick> getWinners(List<Integer> numbers, List<Brick> bricks, boolean shouldGetFirst) {
+        List<Brick> winners = new ArrayList<>();
         for (var number : numbers) {
             winners.addAll(bricks.stream()
                     .peek(brick -> brick.mark(number))
                     .filter(Brick::bingo)
                     .toList());
-
             bricks.removeAll(winners);
 
-            final int previousWinners = winners.size();
-
-            if (previousWinners > totalWinners) {
-                winningNumber = number;
+            if (shouldGetFirst && winners.size() == 1) {
+                break;
             }
-            totalWinners = previousWinners;
-            if (previousWinners == totalBricks) {
+
+            if (bricks.isEmpty()) {
                 break;
             }
         }
-
-        // then
-        final Brick finalWinner = winners.get(winners.size() - 1);
-        final int uncheckedSum = finalWinner.uncheckedSum();
-        final int actual = uncheckedSum * winningNumber;
-        assertEquals(expected, actual);
+        return winners;
     }
 
+    private Brick getFirstBingo(List<Integer> numbers, List<Brick> bricks) {
+        return getWinners(numbers, bricks, true).get(0);
+    }
+
+    private Brick getLastBingo(List<Integer> numbers, List<Brick> bricks) {
+        final int totalBricks = bricks.size();
+        return getWinners(numbers, bricks, false).get(totalBricks - 1);
+    }
 
     private List<Integer> getNumbers(List<String> lines) {
         return Arrays.stream(lines.remove(0).split(",")).map(Integer::parseInt).toList();
