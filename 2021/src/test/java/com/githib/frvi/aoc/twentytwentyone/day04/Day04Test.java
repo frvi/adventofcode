@@ -34,7 +34,7 @@ public class Day04Test {
             bricks.forEach(brick -> brick.mark(number));
 
             winners = bricks.stream()
-                    .filter(Brick::hasWon)
+                    .filter(Brick::bingo)
                     .toList();
 
             if (winners.size() == 1) {
@@ -47,7 +47,7 @@ public class Day04Test {
         assertEquals(3, bricks.size());
         assertEquals(1, winners.size());
 
-        final var unmarkedSum = winners.get(0).unmarkedSum();
+        final var unmarkedSum = winners.get(0).uncheckedSum();
 
         assertEquals(expected, unmarkedSum * winningNumber);
     }
@@ -69,7 +69,7 @@ public class Day04Test {
         for (var number : numbers) {
             winners = bricks.stream()
                     .peek(brick -> brick.mark(number))
-                    .filter(Brick::hasWon)
+                    .filter(Brick::bingo)
                     .toList();
 
             if (!winners.isEmpty()) {
@@ -81,7 +81,7 @@ public class Day04Test {
         // then
         assertEquals(expectedWinners, winners.size());
 
-        final var unmarkedSum = winners.get(0).unmarkedSum();
+        final var unmarkedSum = winners.get(0).uncheckedSum();
 
         assertEquals(expectedSum, unmarkedSum * winningNumber);
     }
@@ -100,13 +100,11 @@ public class Day04Test {
 
         // when
         for (var number : numbers) {
-
-            var currentWinners = bricks.stream()
+            winners.addAll(bricks.stream()
                     .peek(brick -> brick.mark(number))
-                    .filter(Brick::hasWon)
-                    .toList();
+                    .filter(Brick::bingo)
+                    .toList());
 
-            winners.addAll(currentWinners);
             bricks.removeAll(winners);
 
             final int previousWinners = winners.size();
@@ -121,9 +119,9 @@ public class Day04Test {
         }
 
         // then
-        final var finalWinner = winners.get(winners.size() - 1);
-        final var unmarkedSum = finalWinner.unmarkedSum();
-        final var actual = unmarkedSum * winningNumber;
+        final Brick finalWinner = winners.get(winners.size() - 1);
+        final int uncheckedSum = finalWinner.uncheckedSum();
+        final int actual = uncheckedSum * winningNumber;
         assertEquals(expected, actual);
     }
 
@@ -157,84 +155,62 @@ public class Day04Test {
     }
 
     private static class Brick {
-        List<List<Dot>> rows;
-        List<List<Dot>> cols;
-        int lastNumber;
+        Dot[][] dots;
+        int latestNumber;
 
-        Brick(List<List<Dot>> rows) {
-            this.rows = rows;
-            this.cols = createCols(rows);
+        Brick(List<List<Dot>> dots) {
+            this.dots = buildBrick(dots);
         }
 
-        private List<List<Dot>> createCols(List<List<Dot>> rows) {
-            List<List<Dot>> cols = new ArrayList<>(List.of());
-
-            for (var row :
-                    rows) {
-                cols.add(new ArrayList<>(row.size()));
-            }
-
-            for (int i = 0; i < rows.size(); i++) {
-
+        private Dot[][] buildBrick(List<List<Dot>> rows) {
+            final var size = rows.size();
+            Dot[][] dots = new Dot[size][size];
+            for (int i = 0; i < size; i++) {
                 final var row = rows.get(i);
-
                 for (int j = 0; j < row.size(); j++) {
-                    final var dot = row.get(j);
-                    cols.get(j).add(i, dot);
+                    dots[j][i] = row.get(j);
                 }
             }
-            return cols;
+            return dots;
         }
 
         void mark(int number) {
-            for (List<Dot> row : this.rows) {
-                row.forEach(d -> {
-                    if (d.number == number) {
-                        d.checked = true;
-                        this.lastNumber = number;
+            final int rows = this.dots.length;
+            final int cols = this.dots[0].length;
+            for (int i = 0; i < cols; i++) {
+                for (int j = 0; j < rows; j++) {
+                    final var dot = this.dots[i][j];
+                    if (dot.number == number) {
+                        dot.checked = true;
+                        this.latestNumber = number;
                     }
-                });
-            }
-            for (List<Dot> col : this.cols) {
-                col.forEach(d -> {
-                    if (d.number == number) {
-                        d.checked = true;
-                        this.lastNumber = number;
-                    }
-                });
+                }
             }
         }
 
-        public boolean hasWon() {
-            for (var row :
-                    this.rows) {
-                final var count = row.stream().filter(dot -> dot.checked).count();
-                if (count == 5) {
-                    return true;
+        public boolean bingo() {
+            final var dots = this.dots;
+            final int size = dots.length;
+            for (int i = 0; i < size; i++) {
+                List<Dot> row = new ArrayList<>(size);
+                for (Dot[] dot : dots) {
+                    row.add(dot[i]);
                 }
-            }
-            for (var col :
-                    this.cols) {
-                final var count = col.stream().filter(dot -> dot.checked).count();
-                if (count == 5) {
+                final boolean colBingo = Arrays.stream(dots[i]).allMatch(d -> d.checked);
+                final boolean rowBingo = row.stream().allMatch(d -> d.checked);
+                if (colBingo || rowBingo) {
                     return true;
                 }
             }
             return false;
         }
 
-        public int unmarkedSum() {
-            int unmarkedSum = 0;
-            for (var row :
-                    this.rows) {
-                for (var number :
-                        row) {
-                    if (!number.checked) {
-                        unmarkedSum += number.number;
-                    }
-                }
-            }
-            return unmarkedSum;
+        public int uncheckedSum() {
+            return Arrays.stream(this.dots)
+                    .map(column -> Arrays.stream(column)
+                            .filter(d -> !d.checked).map(d -> d.number)
+                            .reduce(0, Integer::sum))
+                    .reduce(0, Integer::sum);
         }
     }
 }
