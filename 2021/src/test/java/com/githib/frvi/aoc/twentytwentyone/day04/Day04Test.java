@@ -56,33 +56,34 @@ public class Day04Test {
     public void testOne() throws IOException {
         // given
         final var sampleLines = Helper.readAllLines(INPUT);
-        final var expected = 29440;
+        final int expectedSum = 29440;
+        final int expectedWinners = 1;
+
         final var numbers = getNumbers(sampleLines);
         final List<Brick> bricks = createBricks(sampleLines);
-        List<Brick> winners = List.of();
+
+        List<Brick> winners = new ArrayList<>();
         int winningNumber = 0;
 
         // when
-        for (var number :
-                numbers) {
-            bricks.forEach(brick -> brick.mark(number));
-
+        for (var number : numbers) {
             winners = bricks.stream()
+                    .peek(brick -> brick.mark(number))
                     .filter(Brick::hasWon)
                     .toList();
 
-            if (winners.size() == 1) {
+            if (!winners.isEmpty()) {
                 winningNumber = number;
                 break;
             }
         }
 
         // then
-        assertEquals(1, winners.size());
+        assertEquals(expectedWinners, winners.size());
 
         final var unmarkedSum = winners.get(0).unmarkedSum();
 
-        assertEquals(expected, unmarkedSum * winningNumber);
+        assertEquals(expectedSum, unmarkedSum * winningNumber);
     }
 
     @Test
@@ -90,41 +91,39 @@ public class Day04Test {
         // given
         final var sampleLines = Helper.readAllLines(INPUT);
         final var expected = 13884;
+        List<Brick> winners = new ArrayList<>();
+        int totalWinners = 0;
+        int winningNumber = 0;
         final var numbers = getNumbers(sampleLines);
         List<Brick> bricks = createBricks(sampleLines);
-        List<Brick> winners = new ArrayList<>();
-        int winningNumber = 0;
-        int prevWinners = 0;
+        final int totalBricks = bricks.size();
 
         // when
-        for (var number :
-                numbers) {
-            bricks.forEach(brick -> brick.mark(number));
+        for (var number : numbers) {
 
             var currentWinners = bricks.stream()
+                    .peek(brick -> brick.mark(number))
                     .filter(Brick::hasWon)
                     .toList();
 
             winners.addAll(currentWinners);
-
             bricks.removeAll(winners);
 
-            if (winners.size() > prevWinners) {
+            final int previousWinners = winners.size();
+
+            if (previousWinners > totalWinners) {
                 winningNumber = number;
             }
-            prevWinners = winners.size();
-
-            if (winners.size() == 100) {
+            totalWinners = previousWinners;
+            if (previousWinners == totalBricks) {
                 break;
             }
         }
 
-        final var lastWinner = winners.get(winners.size() - 1);
-
         // then
-        final var unmarkedSum = lastWinner.unmarkedSum();
+        final var finalWinner = winners.get(winners.size() - 1);
+        final var unmarkedSum = finalWinner.unmarkedSum();
         final var actual = unmarkedSum * winningNumber;
-
         assertEquals(expected, actual);
     }
 
