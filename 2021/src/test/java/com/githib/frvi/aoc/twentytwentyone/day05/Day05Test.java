@@ -3,7 +3,6 @@ package com.githib.frvi.aoc.twentytwentyone.day05;
 import com.githib.frvi.aoc.twentytwentyone.helper.Helper;
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +26,8 @@ public class Day05Test {
         final var lines = Helper.readAllLines(SAMPLE);
 
         // when
-        final List<List<Point>> pairs = pointPairs(lines);
-        final List<Point> straightLines = straightLines(pairs);
+        final List<Pair> pairs = pairs(lines);
+        final List<Coordinate> straightLines = straightLines(pairs);
         final long actual = overlaps(straightLines);
 
         // then
@@ -41,8 +40,8 @@ public class Day05Test {
         final var lines = Helper.readAllLines(INPUT);
 
         // when
-        final List<List<Point>> pairs = pointPairs(lines);
-        final List<Point> straightLines = straightLines(pairs);
+        final List<Pair> pairs = pairs(lines);
+        final List<Coordinate> straightLines = straightLines(pairs);
         final long actual = overlaps(straightLines);
 
         // then
@@ -55,9 +54,9 @@ public class Day05Test {
         final var lines = Helper.readAllLines(SAMPLE);
 
         // when
-        final List<List<Point>> pairs = pointPairs(lines);
-        final List<Point> straightLines = straightLines(pairs);
-        final List<Point> diagonalLines = diagonalLines(pairs);
+        final List<Pair> pairs = pairs(lines);
+        final List<Coordinate> straightLines = straightLines(pairs);
+        final List<Coordinate> diagonalLines = diagonalLines(pairs);
         final var allLines = Stream.concat(straightLines.stream(), diagonalLines.stream()).collect(Collectors.toList());
         final long actual = overlaps(allLines);
 
@@ -71,9 +70,9 @@ public class Day05Test {
         final var lines = Helper.readAllLines(INPUT);
 
         // when
-        final List<List<Point>> pairs = pointPairs(lines);
-        final List<Point> straightLines = straightLines(pairs);
-        final List<Point> diagonalLines = diagonalLines(pairs);
+        final List<Pair> pairs = pairs(lines);
+        final List<Coordinate> straightLines = straightLines(pairs);
+        final List<Coordinate> diagonalLines = diagonalLines(pairs);
         final var allLines = Stream.concat(straightLines.stream(), diagonalLines.stream()).collect(Collectors.toList());
         final long actual = overlaps(allLines);
 
@@ -81,8 +80,8 @@ public class Day05Test {
         assertEquals(expected, actual);
     }
 
-    private List<List<Point>> pointPairs(List<String> lines) {
-        var points = new ArrayList<List<Point>>();
+    private List<Pair> pairs(List<String> lines) {
+        var pairs = new ArrayList<Pair>();
         for (var line : lines) {
             final var coordinates = line.split(" -> ");
             final var start = coordinates[0].trim().split(",");
@@ -91,20 +90,17 @@ public class Day05Test {
             final int y1 = Integer.parseInt(start[1]);
             final int x2 = Integer.parseInt(end[0]);
             final int y2 = Integer.parseInt(end[1]);
-            final var p1 = new Point(x1, y1);
-            final var p2 = new Point(x2, y2);
-            points.add(List.of(p1, p2));
+            pairs.add(new Pair(new Coordinate(x1, y1), new Coordinate(x2, y2)));
         }
-        return points;
+        return pairs;
     }
 
-    private List<Point> straightLines(List<List<Point>> points) {
-        List<Point> horizontal = new ArrayList<>();
-        List<Point> vertical = new ArrayList<>();
-        for (var pair : points) {
-            final var start = pair.get(0);
-            final var stop = pair.get(1);
-
+    private List<Coordinate> straightLines(List<Pair> pairs) {
+        List<Coordinate> horizontal = new ArrayList<>();
+        List<Coordinate> vertical = new ArrayList<>();
+        for (var pair : pairs) {
+            final var start = pair.start;
+            final var stop = pair.stop;
             final var x1 = start.x;
             final var x2 = stop.x;
             final var y1 = start.y;
@@ -114,11 +110,11 @@ public class Day05Test {
 
             if (dx == 0) {
                 var ys = dy > 0 ? createRange(y1, y2) : reverseRange(y1, y2);
-                vertical.addAll(ys.stream().map(y -> new Point(x1, y)).toList());
+                vertical.addAll(ys.stream().map(y -> new Coordinate(x1, y)).toList());
             }
             if (dy == 0) {
                 var xs = dx > 0 ? createRange(x1, x2) : reverseRange(x1, x2);
-                horizontal.addAll(xs.stream().map(x -> new Point(x, y1)).toList());
+                horizontal.addAll(xs.stream().map(x -> new Coordinate(x, y1)).toList());
             }
         }
         return Stream.of(horizontal, vertical)
@@ -126,11 +122,11 @@ public class Day05Test {
                 .toList();
     }
 
-    private List<Point> diagonalLines(List<List<Point>> pairs) {
-        final var diagonal = new ArrayList<Point>();
+    private List<Coordinate> diagonalLines(List<Pair> pairs) {
+        final var diagonal = new ArrayList<Coordinate>();
         for (var pair : pairs) {
-            final var start = pair.get(0);
-            final var stop = pair.get(1);
+            final var start = pair.start;
+            final var stop = pair.stop;
             final var x1 = start.x;
             final var x2 = stop.x;
             final var y1 = start.y;
@@ -146,18 +142,18 @@ public class Day05Test {
             var ys = dy > 0 ? createRange(y1, y2) : reverseRange(y1, y2);
 
             for (int i = 0; i < xs.size(); i++) {
-                diagonal.add(new Point(xs.get(i), ys.get(i)));
+                diagonal.add(new Coordinate(xs.get(i), ys.get(i)));
             }
         }
         return diagonal;
     }
 
-    private long overlaps(List<Point> points) {
-        final var map = new HashMap<Point, Integer>();
-        for (var point : points) {
-            int value = map.getOrDefault(point, 0);
+    private long overlaps(List<Coordinate> coordinates) {
+        final var map = new HashMap<Coordinate, Integer>();
+        for (var coordinate : coordinates) {
+            int value = map.getOrDefault(coordinate, 0);
             value++;
-            map.put(point, value);
+            map.put(coordinate, value);
         }
         return map.values().stream().filter(v -> v >= 2).count();
     }
@@ -168,5 +164,11 @@ public class Day05Test {
 
     private List<Integer> reverseRange(int startInclusive, int stopInclusive) {
         return createRange(stopInclusive, startInclusive).stream().sorted(Collections.reverseOrder()).toList();
+    }
+
+    private record Pair(Coordinate start, Coordinate stop) {
+    }
+
+    private record Coordinate(int x, int y) {
     }
 }
