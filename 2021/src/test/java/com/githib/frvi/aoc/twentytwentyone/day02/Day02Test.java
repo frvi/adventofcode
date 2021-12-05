@@ -13,13 +13,15 @@ public class Day02Test {
 
     @Test
     public void partOne() throws IOException {
+        // given
         final var lines = readAllLines(INPUT);
+        final var expected = 1692075;
 
         int forward = 0;
         int down = 0;
         int up = 0;
-        int depth = 0;
 
+        // when
         for (String line : lines) {
             final var s = line.split(" ");
             switch (s[0]) {
@@ -33,9 +35,10 @@ public class Day02Test {
             }
         }
 
-        depth = down - up;
-
-        System.out.println(depth * forward);
+        // then
+        final var depth = down - up;
+        final var actual = depth * forward;
+        assertEquals(expected, actual);
 
     }
 
