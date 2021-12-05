@@ -124,52 +124,33 @@ public class Day05Test {
             final var stop = pair.get(1);
 
             if (start.x < stop.x) {
+                final var xs = createRange(start.x, stop.x);
                 if (start.y > stop.y) {
-                    final var startX = start.x;
-                    final var stopX = stop.x;
-                    final var startY = stop.y;
-                    final var stopY = start.y;
-                    final var xs = IntStream.range(startX, stopX + 1).boxed().collect(Collectors.toCollection(ArrayList::new));
-                    final var ys = IntStream.range(startY, stopY + 1).boxed().collect(Collectors.toCollection(ArrayList::new));
+                    final var ys = createRange(stop.y, start.y);
                     Collections.reverse(ys);
                     for (int i = 0; i < xs.size(); i++) {
                         diagonalLines.add(new Point(xs.get(i), ys.get(i)));
                     }
                 }
                 if (start.y < stop.y) {
-                    final var startX = start.x;
-                    final var stopX = stop.x;
-                    final var startY = start.y;
-                    final var stopY = stop.y;
-                    final var xs = IntStream.range(startX, stopX + 1).boxed().collect(Collectors.toCollection(ArrayList::new));
-                    final var ys = IntStream.range(startY, stopY + 1).boxed().collect(Collectors.toCollection(ArrayList::new));
+                    final var ys = createRange(start.y, stop.y);
                     for (int i = 0; i < xs.size(); i++) {
                         diagonalLines.add(new Point(xs.get(i), ys.get(i)));
                     }
                 }
             }
             if (start.x > stop.x) {
+                final var xs = createRange(stop.x, start.x);
+                Collections.reverse(xs);
                 if (start.y > stop.y) {
-                    final var startX = stop.x;
-                    final var stopX = start.x;
-                    final var startY = stop.y;
-                    final var stopY = start.y;
-                    final var xs = IntStream.range(startX, stopX + 1).boxed().collect(Collectors.toCollection(ArrayList::new));
-                    final var ys = IntStream.range(startY, stopY + 1).boxed().collect(Collectors.toCollection(ArrayList::new));
-                    Collections.reverse(xs);
+                    final var ys = createRange(stop.y, start.y);
                     Collections.reverse(ys);
                     for (int i = 0; i < xs.size(); i++) {
                         diagonalLines.add(new Point(xs.get(i), ys.get(i)));
                     }
                 }
                 if (start.y < stop.y) {
-                    final var startX = stop.x;
-                    final var stopX = start.x;
-                    final var startY = start.y;
-                    final var stopY = stop.y;
-                    final var xs = IntStream.range(startX, stopX + 1).boxed().collect(Collectors.toCollection(ArrayList::new));
-                    final var ys = IntStream.range(startY, stopY + 1).boxed().collect(Collectors.toCollection(ArrayList::new));
-                    Collections.reverse(xs);
+                    final var ys = createRange(start.y, stop.y);
                     for (int i = 0; i < xs.size(); i++) {
                         diagonalLines.add(new Point(xs.get(i), ys.get(i)));
                     }
@@ -187,5 +168,11 @@ public class Day05Test {
             map.put(point, value);
         }
         return map.values().stream().filter(v -> v >= 2).count();
+    }
+
+    private ArrayList<Integer> createRange(int startInclusive, int stopInclusive) {
+        return IntStream.range(startInclusive, stopInclusive + 1)
+                .boxed()
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }
