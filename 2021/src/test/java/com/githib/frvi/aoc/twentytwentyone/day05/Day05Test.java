@@ -6,12 +6,11 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,13 +21,19 @@ public class Day05Test {
 
     @Test
     public void sample() throws IOException {
+        // given
         final int expected = 5;
-        final var lines = Helper.readAllLines(SAMPLE);
+        final var input = Helper.readAllLines(SAMPLE);
 
         // when
-        final List<Pair> pairs = pairs(lines);
-        final List<Coordinate> straightLines = straightLines(pairs);
-        final long actual = overlaps(straightLines);
+        final var actual = overlaps(
+                lines(input)
+                        .stream()
+                        .filter(line -> line.isVertical() || line.isHorizontal())
+                        .map(Line::coordinates)
+                        .flatMap(Collection::stream)
+                        .toList()
+        );
 
         // then
         assertEquals(expected, actual);
@@ -36,13 +41,19 @@ public class Day05Test {
 
     @Test
     public void testOne() throws IOException {
+        // given
         final int expected = 6189;
-        final var lines = Helper.readAllLines(INPUT);
+        final var input = Helper.readAllLines(INPUT);
 
         // when
-        final List<Pair> pairs = pairs(lines);
-        final List<Coordinate> straightLines = straightLines(pairs);
-        final long actual = overlaps(straightLines);
+        final var actual = overlaps(
+                lines(input)
+                        .stream()
+                        .filter(line -> line.isVertical() || line.isHorizontal())
+                        .map(Line::coordinates)
+                        .flatMap(Collection::stream)
+                        .toList()
+        );
 
         // then
         assertEquals(expected, actual);
@@ -50,15 +61,18 @@ public class Day05Test {
 
     @Test
     public void sampleTwo() throws IOException {
+        // given
         final int expected = 12;
-        final var lines = Helper.readAllLines(SAMPLE);
+        final var input = Helper.readAllLines(SAMPLE);
 
         // when
-        final List<Pair> pairs = pairs(lines);
-        final List<Coordinate> straightLines = straightLines(pairs);
-        final List<Coordinate> diagonalLines = diagonalLines(pairs);
-        final var allLines = Stream.concat(straightLines.stream(), diagonalLines.stream()).collect(Collectors.toList());
-        final long actual = overlaps(allLines);
+        final var actual = overlaps(
+                lines(input)
+                        .stream()
+                        .map(Line::coordinates)
+                        .flatMap(Collection::stream)
+                        .toList()
+        );
 
         // then
         assertEquals(expected, actual);
@@ -66,86 +80,36 @@ public class Day05Test {
 
     @Test
     public void testTwo() throws IOException {
+        // given
         final int expected = 19164;
-        final var lines = Helper.readAllLines(INPUT);
+        final var input = Helper.readAllLines(INPUT);
 
         // when
-        final List<Pair> pairs = pairs(lines);
-        final List<Coordinate> straightLines = straightLines(pairs);
-        final List<Coordinate> diagonalLines = diagonalLines(pairs);
-        final var allLines = Stream.concat(straightLines.stream(), diagonalLines.stream()).collect(Collectors.toList());
-        final long actual = overlaps(allLines);
+        final var actual = overlaps(
+                lines(input)
+                        .stream()
+                        .map(Line::coordinates)
+                        .flatMap(Collection::stream)
+                        .toList()
+        );
 
         // then
         assertEquals(expected, actual);
     }
 
-    private List<Pair> pairs(List<String> lines) {
-        var pairs = new ArrayList<Pair>();
-        for (var line : lines) {
-            final var coordinates = line.split(" -> ");
-            final var start = coordinates[0].trim().split(",");
-            final var end = coordinates[1].trim().split(",");
-            final int x1 = Integer.parseInt(start[0]);
-            final int y1 = Integer.parseInt(start[1]);
-            final int x2 = Integer.parseInt(end[0]);
-            final int y2 = Integer.parseInt(end[1]);
-            pairs.add(new Pair(new Coordinate(x1, y1), new Coordinate(x2, y2)));
-        }
-        return pairs;
-    }
-
-    private List<Coordinate> straightLines(List<Pair> pairs) {
-        List<Coordinate> horizontal = new ArrayList<>();
-        List<Coordinate> vertical = new ArrayList<>();
-        for (var pair : pairs) {
-            final var start = pair.start;
-            final var stop = pair.stop;
-            final var x1 = start.x;
-            final var x2 = stop.x;
-            final var y1 = start.y;
-            final var y2 = stop.y;
-            final var dx = x2 - x1;
-            final var dy = y2 - y1;
-
-            if (dx == 0) {
-                var ys = dy > 0 ? createRange(y1, y2) : reverseRange(y1, y2);
-                vertical.addAll(ys.stream().map(y -> new Coordinate(x1, y)).toList());
-            }
-            if (dy == 0) {
-                var xs = dx > 0 ? createRange(x1, x2) : reverseRange(x1, x2);
-                horizontal.addAll(xs.stream().map(x -> new Coordinate(x, y1)).toList());
-            }
-        }
-        return Stream.of(horizontal, vertical)
-                .flatMap(Collection::stream)
+    private List<Line> lines(List<String> input) {
+        final var pattern = Pattern.compile("(?<x1>\\d+),(?<y1>\\d+) -> (?<x2>\\d+),(?<y2>\\d+)");
+        return input.stream()
+                .map(pattern::matcher)
+                .filter(Matcher::find)
+                .map(matcher -> {
+                    final int x1 = Integer.parseInt(matcher.group("x1"));
+                    final int y1 = Integer.parseInt(matcher.group("y1"));
+                    final int x2 = Integer.parseInt(matcher.group("x2"));
+                    final int y2 = Integer.parseInt(matcher.group("y2"));
+                    return new Line(new Coordinate(x1, y1), new Coordinate(x2, y2));
+                })
                 .toList();
-    }
-
-    private List<Coordinate> diagonalLines(List<Pair> pairs) {
-        final var diagonal = new ArrayList<Coordinate>();
-        for (var pair : pairs) {
-            final var start = pair.start;
-            final var stop = pair.stop;
-            final var x1 = start.x;
-            final var x2 = stop.x;
-            final var y1 = start.y;
-            final var y2 = stop.y;
-            final var dx = x2 - x1;
-            final var dy = y2 - y1;
-
-            if (dx == 0 || dy == 0) {
-                continue;
-            }
-
-            var xs = dx > 0 ? createRange(x1, x2) : reverseRange(x1, x2);
-            var ys = dy > 0 ? createRange(y1, y2) : reverseRange(y1, y2);
-
-            for (int i = 0; i < xs.size(); i++) {
-                diagonal.add(new Coordinate(xs.get(i), ys.get(i)));
-            }
-        }
-        return diagonal;
     }
 
     private long overlaps(List<Coordinate> coordinates) {
@@ -158,15 +122,64 @@ public class Day05Test {
         return map.values().stream().filter(v -> v >= 2).count();
     }
 
-    private List<Integer> createRange(int startInclusive, int stopInclusive) {
-        return IntStream.range(startInclusive, stopInclusive + 1).boxed().toList();
-    }
+    private record Line(Coordinate start, Coordinate stop) {
+        int minX() {
+            return Math.min(start.x, stop.x);
+        }
 
-    private List<Integer> reverseRange(int startInclusive, int stopInclusive) {
-        return createRange(stopInclusive, startInclusive).stream().sorted(Collections.reverseOrder()).toList();
-    }
+        int maxX() {
+            return Math.max(start.x, stop.x);
+        }
 
-    private record Pair(Coordinate start, Coordinate stop) {
+        int minY() {
+            return Math.min(start.y, stop.y);
+        }
+
+        int maxY() {
+            return Math.max(start.y, stop.y);
+        }
+
+        boolean isHorizontal() {
+            return start.y == stop.y;
+        }
+
+        boolean isVertical() {
+            return start.x == stop.x;
+        }
+
+        List<Coordinate> coordinates() {
+            final var coordinates = new ArrayList<Coordinate>();
+            if (this.isVertical()) {
+                for (int j : createRange(this.minY(), this.maxY())) {
+                    coordinates.add(new Coordinate(this.start.x, j));
+                }
+            } else if (this.isHorizontal()) {
+                for (int j : createRange(this.minX(), this.maxX())) {
+                    coordinates.add(new Coordinate(j, this.start.y));
+                }
+            } else {
+                final var xSort = this.start.x > this.stop.x ? 1 : -1;
+                final var ySort = this.start.y > this.stop.y ? 1 : -1;
+                var xs = createRange(this.minX(), this.maxX(), xSort);
+                var ys = createRange(this.minY(), this.maxY(), ySort);
+                for (int i = 0; i < xs.length; i++) {
+                    coordinates.add(new Coordinate(xs[i], ys[i]));
+                }
+            }
+            return coordinates;
+        }
+
+        private int[] createRange(int startInclusive, int stopInclusive) {
+            return createRange(startInclusive, stopInclusive, 1);
+        }
+
+        private int[] createRange(int startInclusive, int stopInclusive, int i) {
+            return IntStream.range(startInclusive, stopInclusive + 1)
+                    .map(a -> a * i)
+                    .sorted()
+                    .map(a -> a * i)
+                    .toArray();
+        }
     }
 
     private record Coordinate(int x, int y) {
