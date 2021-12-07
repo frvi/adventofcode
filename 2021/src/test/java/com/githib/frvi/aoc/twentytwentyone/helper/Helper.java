@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 public class Helper {
@@ -11,6 +12,13 @@ public class Helper {
         Path path = Paths.get(source);
 
         return Files.readAllLines(path);
+    }
+
+    public static List<Integer> readIntList(String source) throws IOException {
+        return readAllLines(source).stream()
+                .map(line -> line.trim().split(","))
+                .flatMap(a -> Arrays.stream(a).map(Integer::parseInt))
+                .toList();
     }
 
     public static int bitsToDecimal(String bits) {
