@@ -4,12 +4,7 @@ import com.githib.frvi.aoc.twentytwentyone.helper.Helper;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -47,7 +42,7 @@ public class Day07Test {
         final var actual = Arrays.stream(costs).filter(cost -> cost != 0).min();
 
         // then
-        assertEquals(expected, actual.getAsInt());
+        assertEquals(expected, actual.isPresent() ? actual.getAsInt() : 0);
     }
 
     @Test
@@ -79,7 +74,7 @@ public class Day07Test {
         final var actual = Arrays.stream(costs).filter(cost -> cost != 0).min();
 
         // then
-        assertEquals(expected, actual.getAsInt());
+        assertEquals(expected, actual.isPresent() ? actual.getAsInt() : 0);
     }
 
     @Test
@@ -115,7 +110,7 @@ public class Day07Test {
         final var actual = Arrays.stream(costs).filter(cost -> cost != 0).min();
 
         // then
-        assertEquals(expected, actual.getAsInt());
+        assertEquals(expected, actual.isPresent() ? actual.getAsInt() : 0);
     }
 
     @Test
@@ -151,6 +146,6 @@ public class Day07Test {
         final var actual = Arrays.stream(costs).filter(cost -> cost != 0).min();
 
         // then
-        assertEquals(expected, actual.getAsInt());
+        assertEquals(expected, actual.isPresent() ? actual.getAsInt() : 0);
     }
 }
