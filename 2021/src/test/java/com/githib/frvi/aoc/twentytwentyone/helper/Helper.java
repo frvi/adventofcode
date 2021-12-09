@@ -21,6 +21,19 @@ public class Helper {
                 .toList();
     }
 
+    public static int[][] createIntMatrix(List<String> rows) {
+        final var height = rows.size();
+        final var width = (int)Arrays.stream(rows.get(0).split("")).count();
+        final var matrix = new int[height][width];
+        for (int i = 0; i < height; i++) {
+            final var row = rows.get(i).split("");
+            for (int j = 0; j < row.length; j++) {
+                matrix[i][j] = Integer.parseInt(row[j]);
+            }
+        }
+        return matrix;
+    }
+
     public static int bitsToDecimal(String bits) {
         return Integer.parseInt(bits, 2);
     }
