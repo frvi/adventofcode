@@ -198,14 +198,14 @@ public class Day12Test {
             return findAllPathsUtilTwo("start", "end", isVisited, pathList, allPaths, shouldPrint);
         }
 
-        private ArrayList<List<String>> findAllPathsUtilTwo(String start,
+        private ArrayList<List<String>> findAllPathsUtilTwo(String current,
                                                             String end,
                                                             HashMap<String, Integer> isVisited,
                                                             List<String> localPathList,
                                                             ArrayList<List<String>> allPaths,
                                                             boolean shouldPrint) {
 
-            if (start.equals(end)) {
+            if (current.equals(end)) {
                 if (shouldPrint) {
                     System.out.println(localPathList);
                 }
@@ -215,35 +215,37 @@ public class Day12Test {
             }
 
             // Mark the current node
-            if (start.equalsIgnoreCase("start") || start.equalsIgnoreCase("end")) {
-                isVisited.put(start, 3);
-            } else if (!isVisited.containsKey(start) && start.toLowerCase().equals(start)) {
-                isVisited.put(start, 1);
+            if (current.equalsIgnoreCase("start") || current.equalsIgnoreCase("end")) {
+                isVisited.put(current, 3);
+            } else if (!isVisited.containsKey(current) && current.toLowerCase().equals(current)) {
+                isVisited.put(current, 1);
             }
 
-            for (Vertex i : getAdjVertices(start)) {
-                if (!isVisited.containsKey(i.label)) {
-                    localPathList.add(i.label);
-                    findAllPathsUtilTwo(i.label, end, isVisited, localPathList, allPaths, shouldPrint);
+            for (Vertex v : getAdjVertices(current)) {
+                final var neighbor = v.label;
+
+                if (!isVisited.containsKey(neighbor)) {
+                    localPathList.add(neighbor);
+                    findAllPathsUtilTwo(neighbor, end, isVisited, localPathList, allPaths, shouldPrint);
                     for (int j = localPathList.size() - 1; j >= 0; j--) {
                         final var s = localPathList.get(j);
                         localPathList.remove(j);
-                        if (s.equals(i.label)) {
+                        if (s.equals(neighbor)) {
                             break;
                         }
                     }
                 } else {
-                    var visits = isVisited.get(i.label);
-                    final var isUppercase = i.label.equals(i.label.toUpperCase());
+                    var visits = isVisited.get(neighbor);
+                    final var isUppercase = neighbor.equals(neighbor.toUpperCase());
                     if (visits < 2 || isUppercase) {
                         if (isUppercase || visits == 0 || !isVisited.containsValue(2)) {
-                            isVisited.replace(i.label, ++visits);
-                            localPathList.add(i.label);
-                            findAllPathsUtilTwo(i.label, end, isVisited, localPathList, allPaths, shouldPrint);
+                            isVisited.replace(neighbor, ++visits);
+                            localPathList.add(neighbor);
+                            findAllPathsUtilTwo(neighbor, end, isVisited, localPathList, allPaths, shouldPrint);
                             for (int j = localPathList.size() - 1; j >= 0; j--) {
                                 final var s = localPathList.get(j);
                                 localPathList.remove(j);
-                                if (s.equals(i.label)) {
+                                if (s.equals(neighbor)) {
                                     break;
                                 }
                             }
@@ -253,9 +255,9 @@ public class Day12Test {
             }
 
             // Remove current node visit
-            if (isVisited.containsKey(start)) {
-                var visits = isVisited.get(start);
-                isVisited.replace(start, --visits);
+            if (isVisited.containsKey(current)) {
+                var visits = isVisited.get(current);
+                isVisited.replace(current, --visits);
 
             }
             return allPaths;
