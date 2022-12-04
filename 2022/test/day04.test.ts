@@ -1,25 +1,27 @@
 import {getInput} from "../src/helpers";
 
-function partialOverlap(sections: Array<Array<number>>) : boolean {
+function partialOverlap(sections: ReadonlyArray<ReadonlyArray<number>>) : boolean {
   const [sections1, sections2] = sections;
   return sections1.filter((item) => sections2.includes(item)).length > 0;
 }
 
-function completeOverlap(sections: Array<Array<number>>) : boolean {
+function completeOverlap(sections: ReadonlyArray<ReadonlyArray<number>>) : boolean {
   const [sections1, sections2] = sections;
   return sections1.filter((item) => sections2.includes(item)).length === sections1.length ||
     sections2.filter((item) => sections1.includes(item)).length === sections2.length;
 }
 
-
-function getRanges(elves: Array<string>) : Array<Array<number>> {
+function getRanges(elves: Array<string>) : ReadonlyArray<ReadonlyArray<number>> {
   const [elf1, elf2] = elves;
   return [getRange(elf1), getRange(elf2)];
 }
 
-function getRange(sections: string): Array<number> {
+function getRange(sections: string): ReadonlyArray<number> {
   const [start, stop] = sections.match(/(\d+)-(\d+)/)?.slice(1) as string[];
-  return Array.from({length: parseInt(stop, 10) - parseInt(start, 10) + 1}, (_, i) => i + parseInt(start, 10));
+  const startAt = parseInt(start, 10);
+  const stopAt = parseInt(stop, 10) + 1;
+  const size = stopAt - startAt;
+  return [...Array(size).keys()].map(i => i + startAt);
 }
 
 describe('day 04, part 01', function () {
@@ -41,7 +43,7 @@ describe('day 04, part 01', function () {
     const result = input
       .map((pair) => pair.split(','))
       .map(getRanges)
-      .map(completeOverlap)
+      .filter(completeOverlap)
       .reduce((acc, curr) => acc + (curr ? 1 : 0), 0);
 
     console.log(`part 1: ${result}`);
@@ -57,7 +59,7 @@ describe('day 04, part 02', function () {
     const result = input
       .map((pair) => pair.split(','))
       .map(getRanges)
-      .map(partialOverlap)
+      .filter(partialOverlap)
       .reduce((acc, curr) => acc + (curr ? 1 : 0), 0);
 
     expect(result).toBe(4);
@@ -69,7 +71,7 @@ describe('day 04, part 02', function () {
     const result = input
       .map((pair) => pair.split(','))
       .map(getRanges)
-      .map(partialOverlap)
+      .filter(partialOverlap)
       .reduce((acc, curr) => acc + (curr ? 1 : 0), 0);
 
     console.log(`part 2: ${result}`);
