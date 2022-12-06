@@ -18,3 +18,9 @@ export async function getInput(path: PathLike): Promise<Array<string>> {
 
   return input;
 }
+
+export function* windowGenerator(input: Array<string>, size: number) : Generator<Array<string>> {
+  for (let i = 0; i+size < input.length; i++) {
+    yield input.slice(i, i+size);
+  }
+}
